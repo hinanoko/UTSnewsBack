@@ -13,5 +13,9 @@ namespace WebApplication1.Context
 
         // DbSet 表示数据库中的用户表
         public DbSet<User> Users { get; set; }
+
+        public DbSet<LostAndFoundModels> LostAndFoundItems { get; set; }
+
+        public DbSet<FeedbackModels> Feedbacks { get; set; } // Feedback table
     }
 }

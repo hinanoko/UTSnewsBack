@@ -2,14 +2,11 @@
 
 namespace WebApplication1.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
     public class HomeController : Controller
     {
-        [HttpGet]
-        public Person GetPerson()
+        public IActionResult Index()
         {
-            return new Person("WMQ", 18);
+            return View();
         }
     }
 }
