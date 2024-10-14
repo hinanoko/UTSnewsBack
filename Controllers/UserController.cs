@@ -25,6 +25,12 @@ namespace WebApplication1.Controllers
                 return BadRequest("Invalid user data.");
             }
 
+            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == user.Email);
+            if (existingUser != null)
+            {
+                return Conflict(new { message = "Email is already registered." });
+            }
+
             _context.Users.Add(user); // 添加用户
             await _context.SaveChangesAsync(); // 保存到数据库
 
@@ -55,5 +61,56 @@ namespace WebApplication1.Controllers
                 user = user
             });
         }
+
+        [HttpPut("changepassword")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordModel model)
+        {
+            if (model == null || string.IsNullOrWhiteSpace(model.Email) || string.IsNullOrWhiteSpace(model.NewPassword))
+            {
+                return BadRequest("Invalid data.");
+            }
+
+            // 查找用户
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == model.Email);
+            if (user == null)
+            {
+                return NotFound(new { message = "User not found." });
+            }
+
+            // 更新密码
+            user.Password = model.NewPassword;
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Password updated successfully." });
+        }
+
+        [HttpGet("getbyname/{name}")]
+        public async Task<IActionResult> GetUsersByName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return BadRequest("Name cannot be empty.");
+            }
+
+            // 查找所有名称匹配的用户
+            var users = await _context.Users.Where(u => u.Name == name).ToListAsync();
+
+            if (users == null || !users.Any())
+            {
+                return NotFound(new { message = $"No users found with the name '{name}'." });
+            }
+
+            // 返回匹配的所有用户信息
+            return Ok(users);
+        }
+
     }
+
+    public class ChangePasswordModel
+    {
+        public string Email { get; set; }
+        public string NewPassword { get; set; }
+    }
+
 }

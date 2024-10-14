@@ -64,5 +64,20 @@ namespace WebApplication1.Controllers
             return Ok(feedback);
         }
 
+        [HttpGet("by-email")]
+        public async Task<IActionResult> GetFeedbackByEmail([FromQuery] string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                return BadRequest("Email is required.");
+            }
+
+            var feedbacks = await _context.Feedbacks
+                .Where(f => f.TeacherEmail == email) // Filter by teacher's email
+                .ToListAsync();
+
+            return Ok(feedbacks);
+        }
+
     }
 }

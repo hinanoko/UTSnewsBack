@@ -167,25 +167,47 @@ namespace WebApplication1.Controllers
             return NoContent();
         }
 
-        // DELETE: api/lostandfound/{id}
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteLostAndFound(int id)
-        {
-            var lostAndFound = await _context.LostAndFoundItems.FindAsync(id);
-            if (lostAndFound == null)
-            {
-                return NotFound();
-            }
-
-            _context.LostAndFoundItems.Remove(lostAndFound);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
 
         private bool LostAndFoundExists(int id)
         {
             return _context.LostAndFoundItems.Any(e => e.Id == id);
         }
+
+        // DELETE: api/lostandfound/{id}
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteLostAndFoundNew(int id)
+        {
+            // 查找数据库中的对应记录
+            var lostAndFound = await _context.LostAndFoundItems.FindAsync(id);
+            if (lostAndFound == null)
+            {
+                return NotFound("找不到该失物招领记录");
+            }
+
+            // 获取图片路径并检查文件是否存在
+            if (!string.IsNullOrEmpty(lostAndFound.image))
+            {
+                var imagePath = Path.Combine(_picturesFolder, Path.GetFileName(lostAndFound.image));
+                if (System.IO.File.Exists(imagePath))
+                {
+                    try
+                    {
+                        // 删除本地文件系统中的图片
+                        System.IO.File.Delete(imagePath);
+                    }
+                    catch (Exception ex)
+                    {
+                        return StatusCode(500, $"无法删除图片: {ex.Message}");
+                    }
+                }
+            }
+
+            // 删除数据库中的失物招领记录
+            _context.LostAndFoundItems.Remove(lostAndFound);
+            await _context.SaveChangesAsync();
+
+            return NoContent(); // 成功删除返回204
+        }
+
     }
 }

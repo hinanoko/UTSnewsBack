@@ -17,5 +17,7 @@ namespace WebApplication1.Context
         public DbSet<LostAndFoundModels> LostAndFoundItems { get; set; }
 
         public DbSet<FeedbackModels> Feedbacks { get; set; } // Feedback table
+
+        public DbSet<ActivityModels> Activities { get; set; }
     }
 }
